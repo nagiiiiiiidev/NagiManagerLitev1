@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NAGI RL MANAGER LITE v1</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- External libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+        <div class="header-left">
+            <span class="logo">NAGI</span>
+            <span class="logo-sub">RL Manager LITE</span>
+            <span class="version">v1</span>
+        </div>
+        <div class="header-center" id="header-info" style="display:none;">
+            <img id="header-logo" src="" alt="logo" />
+            <span id="header-name"></span>
+        </div>
+        <div class="header-right">
+            <button id="btn-import" class="btn-secondary">Import</button>
+            <input type="file" id="file-input" accept=".json" style="display:none" />
+            <button id="btn-export" class="btn-secondary" style="display:none;">Export</button>
+            <button id="btn-exit" class="btn-exit" style="display:none;">Exit</button>
+            <button id="btn-toggle-ego" class="btn-ego" style="display:none;">Show EGO</button>
+        </div>
+    </header>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="main-nav" id="main-nav"></nav>
+
+    <!-- ========== VIEWS CONTAINER ========== -->
+    <main class="views-container" id="views-container">
+
+        <!-- DASHBOARD -->
+        <section id="view-dashboard" class="view-section active">
+            <div class="dashboard-header">
+                <h1>Welcome, <span class="highlight">Manager</span></h1>
+                <p>Data. Strategy. Victory.</p>
+            </div>
+            <div class="dashboard-grid" id="dashboard-grid"></div>
+        </section>
+
+        <!-- PERFORMANCE -->
+        <section id="view-performance" class="view-section">
+            <div class="perf-header">
+                <h2>Performance <span class="highlight">Analytics</span></h2>
+                <div class="perf-toggles">
+                    <button class="toggle-btn active" data-metric="goals">⚽ Goals</button>
+                    <button class="toggle-btn active" data-metric="assists">🎯 Assists</button>
+                    <button class="toggle-btn active" data-metric="saves">🧤 Saves</button>
+                    <button class="toggle-btn active" data-metric="ego">EGO</button>
+                </div>
+            </div>
+            <div class="perf-grid">
+                <div class="perf-players glass-card">
+                    <h3>Players</h3>
+                    <div id="perf-player-list"></div>
+                </div>
+                <div class="perf-chart glass-card">
+                    <canvas id="perf-chart"></canvas>
+                    <div class="perf-info">
+                        <span id="perf-player-name">Select a player</span>
+                        <span id="perf-player-ego">EGO: —</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CLUBS -->
+        <section id="view-clubs" class="view-section">
+            <div class="section-header">
+                <h2>Clubs <span class="highlight">Standings</span></h2>
+                <div class="section-actions">
+                    <button class="btn-secondary" onclick="UIController.showModal('mod-config-table')">Config</button>
+                    <button class="btn-primary" onclick="UIController.showModal('mod-team')">Add Club</button>
+                    <button class="btn-accent" onclick="UIController.switchView('playoffs')">Playoffs</button>
+                </div>
+            </div>
+            <div id="standings-container"></div>
+            <div class="standings-legend">
+                <span><span class="dot qual"></span> Qualification</span>
+                <span><span class="dot rel"></span> Relegation</span>
+            </div>
+        </section>
+
+        <!-- SCHEDULE -->
+        <section id="view-schedule" class="view-section">
+            <div class="section-header">
+                <h2>Match <span class="highlight">Schedule</span></h2>
+                <button id="btn-generate-fixture" class="btn-primary" style="display:none;">Generate</button>
+            </div>
+            <div id="rounds-container" style="display:none;">
+                <div class="round-tabs" id="round-tabs"></div>
+                <div id="matches-list"></div>
+            </div>
+        </section>
+
+        <!-- PLAYOFFS -->
+        <section id="view-playoffs" class="view-section">
+            <div class="section-header">
+                <h2>Playoff <span class="highlight">Bracket</span></h2>
+                <div class="playoff-controls">
+                    <select id="sel-playoff-format">
+                        <option value="8">Quarter (8)</option>
+                        <option value="4" selected>Semi (4)</option>
+                        <option value="2">Final (2)</option>
+                    </select>
+                    <button class="btn-primary" onclick="App.generatePlayoffs()">Generate</button>
+                </div>
+            </div>
+            <div id="playoffs-container" class="playoffs-placeholder">
+                <p>Select format and generate bracket</p>
+            </div>
+        </section>
+
+        <!-- STATS -->
+        <section id="view-stats" class="view-section">
+            <div class="stats-header">
+                <h2>Season <span class="highlight">Stats</span></h2>
+                <p>Individual leaders</p>
+            </div>
+            <div class="stats-layout">
+                <div class="stats-tabs" id="stats-tabs">
+                    <button class="stats-tab active" data-tab="goals">Goals ⚽</button>
+                    <button class="stats-tab" data-tab="assists">Assists 🎯</button>
+                    <button class="stats-tab" data-tab="saves">Saves 🧤</button>
+                    <button class="stats-tab" data-tab="ego">EGO 🔥</button>
+                    <button class="stats-tab" data-tab="round">By Round 🔱</button>
+                </div>
+                <div class="stats-content">
+                    <div id="stats-round-selector" style="display:none;"></div>
+                    <div id="stats-list-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEADERBOARD ELITE -->
+        <section id="view-leaderboard" class="view-section">
+            <div class="elite-header">
+                <h2>Leaderboard <span class="highlight">Elite</span></h2>
+                <p>The best of the best</p>
+            </div>
+            <div id="leaderboard-podium" class="elite-podium"></div>
+            <div id="leaderboard-list-container" class="elite-list"></div>
+        </section>
+
+        <!-- ECONOMY -->
+        <section id="view-economy" class="view-section">
+            <div class="section-header">
+                <h2>Economy <span class="highlight">Management</span></h2>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="Economy.showGiveMoney()">Give Money</button>
+                    <button class="btn-accent" onclick="Economy.showTransfers()">Transfers</button>
+                    <button class="btn-secondary" onclick="Economy.showLoans()">Loans</button>
+                    <button class="btn-secondary" onclick="Economy.showMarket()">Market</button>
+                </div>
+            </div>
+            <div id="economy-container"></div>
+        </section>
+
+    </main>
+
+    <!-- ========== MODAL ========== -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;">
+        <div class="modal-content" id="modal-content"></div>
+    </div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script src="script.js"></script>
+    <script src="economy.js"></script>
+</body>
+</html>
